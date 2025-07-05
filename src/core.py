@@ -41,8 +41,16 @@ class AWSCredentialManager:
             dict: Session credentials or None if failed
         """
         try:
-            logger.info(f"Generating session token for region: {self.region}")
-            logger.info(f"Token duration: {duration_seconds} seconds ({duration_seconds/3600:.1f} hours)")
+            logger.info(f"🌍 Generating session token for region: {self.region}")
+            logger.info(f"⏰ Token duration: {duration_seconds} seconds ({duration_seconds/3600:.1f} hours)")
+
+            # Validate duration (AWS STS limits)
+            if duration_seconds < 900:  # 15 minutes minimum
+                logger.warning(f"⚠️  Duration {duration_seconds}s is below AWS minimum (900s). Using 900s.")
+                duration_seconds = 900
+            elif duration_seconds > 129600:  # 36 hours maximum
+                logger.warning(f"⚠️  Duration {duration_seconds}s exceeds AWS maximum (129600s). Using 129600s.")
+                duration_seconds = 129600
 
             # Create STS client
             sts_client = boto3.client(
@@ -53,11 +61,12 @@ class AWSCredentialManager:
             )
 
             # Get session token
+            logger.debug("🔐 Requesting session token from AWS STS...")
             response = sts_client.get_session_token(DurationSeconds=duration_seconds)
             credentials = response['Credentials']
 
-            logger.success("Session token generated successfully")
-            logger.info(f"Token expires at: {credentials['Expiration']}")
+            logger.success("✅ Session token generated successfully")
+            logger.info(f"🕒 Token expires at: {credentials['Expiration']}")
 
             return {
                 'access_key': credentials['AccessKeyId'],
@@ -69,15 +78,27 @@ class AWSCredentialManager:
         except ClientError as e:
             error_code = e.response['Error']['Code']
             error_message = e.response['Error']['Message']
-            logger.error(f"AWS API error ({error_code}): {error_message}")
+            
+            # Provide more helpful error messages
+            if error_code == 'InvalidUserID.NotFound':
+                logger.error(f"❌ AWS user not found. Check your AWS_ACCESS_KEY_ID.")
+            elif error_code == 'SignatureDoesNotMatch':
+                logger.error(f"❌ Invalid AWS credentials. Check your AWS_SECRET_ACCESS_KEY.")
+            elif error_code == 'TokenRefreshRequired':
+                logger.error(f"❌ AWS credentials have expired. Please refresh your credentials.")
+            elif error_code == 'AccessDenied':
+                logger.error(f"❌ Access denied. Your AWS user may not have permission to call sts:GetSessionToken.")
+            else:
+                logger.error(f"❌ AWS API error ({error_code}): {error_message}")
+            
             return None
 
         except NoCredentialsError:
-            logger.error("No valid AWS credentials found")
+            logger.error("❌ No valid AWS credentials found")
             return None
 
         except Exception as e:
-            logger.error(f"Unexpected error generating session token: {e}")
+            logger.error(f"❌ Unexpected error generating session token: {e}")
             return None
 
     def validate_credentials(self) -> bool:
@@ -88,20 +109,47 @@ class AWSCredentialManager:
             bool: True if credentials are valid, False otherwise
         """
         try:
+            logger.debug("🔍 Creating STS client for validation...")
             sts_client = boto3.client(
                 'sts',
                 aws_access_key_id=self.access_key,
                 aws_secret_access_key=self.secret_key
             )
 
+            logger.debug("🔐 Calling GetCallerIdentity...")
             identity = sts_client.get_caller_identity()
-            logger.success("AWS credentials are valid")
-            logger.info(f"Account ID: {identity['Account']}")
-            logger.info(f"User ARN: {identity['Arn']}")
+            
+            logger.success("✅ AWS credentials are valid")
+            logger.info(f"🏢 Account ID: {identity['Account']}")
+            logger.info(f"👤 User ARN: {identity['Arn']}")
+            
+            # Extract and log user information
+            arn_parts = identity['Arn'].split(':')
+            if len(arn_parts) >= 6:
+                user_info = arn_parts[5]
+                if '/' in user_info:
+                    user_type, user_name = user_info.split('/', 1)
+                    logger.info(f"🔑 User Type: {user_type}, Name: {user_name}")
+            
             return True
 
+        except ClientError as e:
+            error_code = e.response['Error']['Code']
+            error_message = e.response['Error']['Message']
+            
+            if error_code == 'InvalidUserID.NotFound':
+                logger.error(f"❌ AWS user not found. Check your AWS_ACCESS_KEY_ID.")
+            elif error_code == 'SignatureDoesNotMatch':
+                logger.error(f"❌ Invalid AWS credentials. Check your AWS_SECRET_ACCESS_KEY.")
+            elif error_code == 'AccessDenied':
+                logger.error(f"❌ Access denied. Your AWS user may not have sufficient permissions.")
+            else:
+                logger.error(f"❌ AWS API error ({error_code}): {error_message}")
+            
+            return False
+
         except Exception as e:
-            logger.error(f"Credential validation failed: {e}")
+            logger.error(f"❌ Credential validation failed: {e}")
             return False
 
 
@@ -150,19 +198,32 @@ class ClaudeCodeFormatter:
             str: JSON formatted credentials
         """
         import json
+        from datetime import datetime, timezone
+
+        # Get current time in UTC with timezone info
+        now = datetime.now(timezone.utc)
+        expiration = credentials['expiration']
+        
+        # Ensure expiration has timezone info
+        if expiration.tzinfo is None:
+            expiration = expiration.replace(tzinfo=timezone.utc)
 
         output = {
             "aws_credentials": {
                 "access_key_id": credentials['access_key'],
                 "secret_access_key": credentials['secret_key'],
                 "session_token": credentials['token'],
-                "expiration": credentials['expiration'].isoformat()
+                "expiration": expiration.isoformat()
             },
             "claude_config": {
                 "use_bedrock": True,
                 "region": region,
                 "primary_model": "us.anthropic.claude-opus-4-20250514-v1:0",
                 "fast_model": "us.anthropic.claude-4-sonnet-20250109-v1:0"
+            },
+            "metadata": {
+                "generated_at": now.isoformat(),
+                "duration_hours": round((expiration - now).total_seconds() / 3600, 1)
             }
         }
 

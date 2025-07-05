@@ -68,8 +68,8 @@ class TestCLI:
         mock_manager_class.return_value = mock_manager
         mock_manager.generate_session_token.return_value = self.mock_credentials
 
-        # Run the command
-        result = self.runner.invoke(app, ['generate', '--format', 'json'])
+        # Run the command with --quiet to get only JSON output
+        result = self.runner.invoke(app, ['generate', '--format', 'json', '--quiet'])
 
         # Assertions
         assert result.exit_code == 0
