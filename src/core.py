@@ -179,8 +179,8 @@ class ClaudeCodeFormatter:
         claude_exports = (
             f"export CLAUDE_CODE_USE_BEDROCK=1 && "
             f"export AWS_REGION={region} && "
-            f"export ANTHROPIC_MODEL=us.anthropic.claude-sonnet-4-20250514-v1:0 && "
-            f"export ANTHROPIC_SMALL_FAST_MODEL=us.anthropic.claude-sonnet-4-20250514-v1:0"
+            f"export ANTHROPIC_MODEL=us.anthropic.claude-opus-4-20250514-v1:0 && "
+            f"export ANTHROPIC_SMALL_FAST_MODEL=us.anthropic.claude-4-sonnet-20250109-v1:0"
         )
 
         return f"{aws_exports} && {claude_exports}"
@@ -218,8 +218,8 @@ class ClaudeCodeFormatter:
             "claude_config": {
                 "use_bedrock": True,
                 "region": region,
-                "primary_model": "us.anthropic.claude-sonnet-4-20250514-v1:0",
-                "fast_model": "us.anthropic.claude-sonnet-4-20250514-v1:0"
+                "primary_model": "us.anthropic.claude-opus-4-20250514-v1:0",
+                "fast_model": "us.anthropic.claude-4-sonnet-20250109-v1:0"
             },
             "metadata": {
                 "generated_at": now.isoformat(),
