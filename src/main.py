@@ -275,8 +275,8 @@ def generate(
             
             claude_table.add_row("CLAUDE_CODE_USE_BEDROCK", "1")
             claude_table.add_row("AWS_REGION", region)
-            claude_table.add_row("ANTHROPIC_MODEL", "us.anthropic.claude-4-sonnet-20250109-v1:0")
-            claude_table.add_row("ANTHROPIC_SMALL_FAST_MODEL", "us.anthropic.claude-4-sonnet-20250109-v1:0")
+            claude_table.add_row("ANTHROPIC_MODEL", "us.anthropic.claude-sonnet-4-20250514-v1:0")
+            claude_table.add_row("ANTHROPIC_SMALL_FAST_MODEL", "us.anthropic.claude-sonnet-4-20250514-v1:0")
             
             console.print(claude_table)
             
