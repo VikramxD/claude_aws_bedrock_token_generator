@@ -150,7 +150,7 @@ class TestClaudeCodeFormatter:
         assert 'export AWS_SESSION_TOKEN=temp_session_token' in result
         assert 'export CLAUDE_CODE_USE_BEDROCK=1' in result
         assert 'export AWS_REGION=us-east-1' in result
-        assert 'export ANTHROPIC_MODEL=us.anthropic.claude-opus-4-20250514-v1:0' in result
+        assert 'export ANTHROPIC_MODEL=us.anthropic.claude-4-sonnet-20250109-v1:0' in result
         assert 'export ANTHROPIC_SMALL_FAST_MODEL=us.anthropic.claude-4-sonnet-20250109-v1:0' in result
 
         # Check that commands are joined with &&
@@ -178,5 +178,5 @@ class TestClaudeCodeFormatter:
         claude_config = parsed['claude_config']
         assert claude_config['use_bedrock'] is True
         assert claude_config['region'] == 'us-east-1'
-        assert claude_config['primary_model'] == 'us.anthropic.claude-opus-4-20250514-v1:0'
+        assert claude_config['primary_model'] == 'us.anthropic.claude-4-sonnet-20250109-v1:0'
         assert claude_config['fast_model'] == 'us.anthropic.claude-4-sonnet-20250109-v1:0'
