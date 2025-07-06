@@ -214,9 +214,6 @@ docs/
 6. Run code quality checks: `uv run ruff check src/ tests/`
 7. Submit a pull request
 
-## 📄 License
-
-This project is licensed under the MIT License.
 
 ## 🆘 Troubleshooting
 
@@ -271,3 +268,6 @@ This project is licensed under the MIT License.
    ```
 
 4. **Copy and paste the output** into your terminal to set up Claude Code with Bedrock!
+
+
+
