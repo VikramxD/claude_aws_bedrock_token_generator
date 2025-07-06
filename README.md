@@ -247,7 +247,7 @@ This project is licensed under the MIT License.
 ## 📚 Additional Resources
 
 - [AWS Bedrock Documentation](https://docs.aws.amazon.com/bedrock/)
-- [Claude Code Documentation](https://docs.anthropic.com/claude-code/)
+- [Claude Code Documentation](https://docs.anthropic.com/en/docs/claude-code/overview)
 - [Anthropic Claude Code on Amazon Bedrock Setup Guide](https://docs.anthropic.com/en/docs/claude-code/amazon-bedrock)
 
 ## 🔄 Quick Start Example
