@@ -22,16 +22,16 @@ A production-ready utility for generating temporary AWS credentials for Amazon B
 ### Using uv (Recommended)
 
 ```bash
-git clone <your-repository-url>
-cd aws-bedrock-credential-helper
+git clone https://github.com/VikramxD/claude_aws_bedrock_token_generator.git
+cd claude_aws-bedrock-credential-helper
 uv sync
 ```
 
 ### Using pip
 
 ```bash
-git clone <your-repository-url>
-cd aws-bedrock-credential-helper
+git clone https://github.com/VikramxD/claude_aws_bedrock_token_generator.git
+cd claude_aws-bedrock-credential-helper
 pip install -r requirements.txt
 ```
 
@@ -254,8 +254,8 @@ This project is licensed under the MIT License.
 
 1. **Clone and setup**:
    ```bash
-   git clone <your-repo-url>
-   cd aws-bedrock-credential-helper
+   git clone https://github.com/VikramxD/claude_aws_bedrock_token_generator.git
+   cd claude_aws-bedrock-credential-helper
    uv sync
    ```
 
